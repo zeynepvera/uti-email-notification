@@ -1,7 +1,7 @@
-
 from pydantic import Field, validator
 from typing import List, Optional, Union, Literal
-from sdks.novavision.src.base.model import Package, Image, Inputs, Configs, Outputs, Response, Request, Output, Input, Config
+from sdks.novavision.src.base.model import Package, Image, Inputs, Configs, Outputs, Response, Request, Output, Input, \
+    Config
 
 
 class InputImage(Input):
@@ -22,7 +22,7 @@ class InputImage(Input):
 
 
 class OutputEmailNotification(Output):
-    name: Literal["emailNotification"] = "emailNotification"
+    name: Literal["outputEmailNotification"] = "outputEmailNotification"
     value: str
     type: Literal["string"] = "string"
 
@@ -31,7 +31,6 @@ class OutputEmailNotification(Output):
 
 
 class Subject(Config):
-
     """
         Subject of the email to be sent.
     """
@@ -58,8 +57,8 @@ class Message(Config):
     class Config:
         title = "Message"
 
-class SenderEmail(Config):
 
+class SenderEmail(Config):
     """
         The email address of the sender.
     """
@@ -68,11 +67,12 @@ class SenderEmail(Config):
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
     placeHolder: str = Field(default="")
+
     class Config:
         title = "Sender Email"
 
-class ReceiverEmail(Config):
 
+class ReceiverEmail(Config):
     """
         The email address of the receiver.
     """
@@ -81,12 +81,12 @@ class ReceiverEmail(Config):
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
     placeHolder: str = Field(default="")
+
     class Config:
         title = "Receiver Email"
 
 
 class SMTPServer(Config):
-
     """
         Custom SMTP server to be used.
 
@@ -96,11 +96,12 @@ class SMTPServer(Config):
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
     placeHolder: str = Field(default="smtp.gmail.com")
+
     class Config:
         title = "SMTP Server"
 
-class SenderMailPassword(Config):
 
+class SenderMailPassword(Config):
     """
         Sender e-mail password be used when authenticating to SMTP server.
     """
@@ -109,8 +110,10 @@ class SenderMailPassword(Config):
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
     placeHolder: str = Field(default="")
+
     class Config:
         title = "Sender Mail Password"
+
 
 """
 
@@ -148,14 +151,14 @@ class BccReceiverEmail(Config):
 
 
 class AdditionalPropertiesValues(Configs):
-   
+
     smtpPort: SMTPPort
     ccReceiverEmail: Optional[CcReceiverEmail] = None
     bccReceiverEmail: Optional[BccReceiverEmail] = None
 
 
 class AdditionalProperties(Config):
-    
+
     name: Literal["AdditionalProperties"] = "AdditionalProperties"
     value: AdditionalPropertiesValues
     type: Literal["object"] = "object"
@@ -171,23 +174,23 @@ class AdditionalProperties(Config):
 
 """
 
+
 class EmailNotificationInputs(Inputs):
     inputImage: InputImage
 
 
 class EmailNotificationConfigs(Configs):
-    subject:Subject
-    senderEmail:SenderEmail
-    receiverEmail:ReceiverEmail
+    subject: Subject
+    senderEmail: SenderEmail
+    receiverEmail: ReceiverEmail
     message: Message
-    smtpServer:SMTPServer
-    senderMailPassword:SenderMailPassword
-    #additionalProperties: Optional[AdditionalProperties] = None
-
+    smtpServer: SMTPServer
+    senderMailPassword: SenderMailPassword
+    # additionalProperties: Optional[AdditionalProperties] = None
 
 
 class EmailNotificationOutputs(Outputs):
-    emailNotification: OutputEmailNotification
+    outputEmailNotification: OutputEmailNotification
 
 
 class EmailNotificationRequest(Request):

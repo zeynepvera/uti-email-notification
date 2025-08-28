@@ -1,12 +1,15 @@
 
 from sdks.novavision.src.helper.package import PackageHelper
 from components.EmailNotification.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutor,  OutputImage
-from components.EmailNotification.src.models.PackageModel import EmailNotification, EmailNotificationResponse, EmailNotificationOutputs
+from components.EmailNotification.src.models.PackageModel import EmailNotification,OutputEmailNotification, EmailNotificationResponse, EmailNotificationOutputs
 
 
 def build_response(context):
-    outputImage = OutputImage(value=context.image)
-    emailNotificationOutputs = EmailNotificationOutputs(outputImage=outputImage)
+    outputEmailNotification = getattr(context, "emailNotification", None)
+    if not outputEmailNotification:
+        outputEmailNotification = ""
+    outputEmailNotification = OutputEmailNotification(value=outputEmailNotification)
+    emailNotificationOutputs = EmailNotificationOutputs(outputEmailNotification=outputEmailNotification)
     emailNotificationResponse = EmailNotificationResponse(outputs=emailNotificationOutputs)
     emailNotification = EmailNotification(value=emailNotificationResponse)
     executor = ConfigExecutor(value=emailNotification)
