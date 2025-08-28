@@ -21,86 +21,186 @@ class InputImage(Input):
         title = "Image"
 
 
-class OutputImage(Output):
-    name: Literal["outputImage"] = "outputImage"
-    value: Union[List[Image],Image]
-    type: str = "object"
-
-    @validator("type", pre=True, always=True)
-    def set_type_based_on_value(cls, value, values):
-        value = values.get('value')
-        if isinstance(value, Image):
-            return "object"
-        elif isinstance(value, list):
-            return "list"
+class OutputEmailNotification(Output):
+    name: Literal["emailNotification"] = "emailNotification"
+    value: str
+    type: Literal["string"] = "string"
 
     class Config:
-        title = "Image"
+        title = "Message: "
 
 
-class KeepSideFalse(Config):
-    name: Literal["False"] = "False"
-    value: Literal[False] = False
-    type: Literal["bool"] = "bool"
-    field: Literal["option"] = "option"
+class Subject(Config):
 
-    class Config:
-        title = "Disable"
-
-
-class KeepSideTrue(Config):
-    name: Literal["True"] = "True"
-    value: Literal[True] = True
-    type: Literal["bool"] = "bool"
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Enable"
-
-
-class KeepSideBBox(Config):
     """
-        Rotate image without catting off sides.
+        Subject of the email to be sent.
     """
-    name: Literal["KeepSide"] = "KeepSide"
-    value: Union[KeepSideTrue, KeepSideFalse]
-    type: Literal["object"] = "object"
-    field: Literal["dropdownlist"] = "dropdownlist"
-
-    class Config:
-        title = "Keep Sides"
-
-
-class Degree(Config):
-    """
-        Positive angles specify counterclockwise rotation while negative angles indicate clockwise rotation.
-    """
-    name: Literal["Degree"] = "Degree"
-    value: int = Field(ge=-359.0, le=359.0,default=0)
-    type: Literal["number"] = "number"
+    name: Literal["Subject"] = "Subject"
+    value: str = Field(default="Notification from NovaVision")
+    type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
-    placeHolder: Literal["[-359, 359]"] = "[-359, 359]"
+    placeHolder: str = Field(default="Notification from NovaVision")
 
     class Config:
-        title = "Angle"
+        title = "Subject"
 
 
-class PackageInputs(Inputs):
+class Message(Config):
+    """
+    Content of the message to be send.
+    """
+    name: Literal["Message"] = "Message"
+    value: str = Field(default="This is an automated message from NovaVision.")
+    type: Literal["string"] = "string"
+    field: Literal["textArea"] = "textArea"
+    placeHolder: str = Field(default="This is an automated message from NovaVision.")
+
+    class Config:
+        title = "Message"
+
+class SenderEmail(Config):
+
+    """
+        The email address of the sender.
+    """
+    name: Literal["SenderEmail"] = "SenderEmail"
+    value: str = Field(default=" ")
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+    placeHolder: str = Field(default=" ")
+    class Config:
+        title = "Sender Email"
+
+class ReceiverEmail(Config):
+
+    """
+        The email address of the receiver.
+    """
+    name: Literal["ReceiverEmail"] = "ReceiverEmail"
+    value: str = Field(default=" ")
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+    placeHolder: str = Field(default=" ")
+    class Config:
+        title = "Receiver Email"
+
+
+class SMTPServer(Config):
+
+    """
+        Custom SMTP server to be used.
+
+    """
+    name: Literal["SMTPServer"] = "SMTPServer"
+    value: str = Field(default="smtp.gmail.com")
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+    placeHolder: str = Field(default="smtp.gmail.com")
+    class Config:
+        title = "SMTP Server"
+
+class SenderMailPassword(Config):
+
+    """
+        Sender e-mail password be used when authenticating to SMTP server.
+    """
+    name: Literal["SenderMailPassword"] = "SenderMailPassword"
+    value: str = Field(default=" ")
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+    placeHolder: str = Field(default=" ")
+    class Config:
+        title = "Sender Mail Password"
+
+
+
+class SMTPPort(Config):
+    """SMTP server port."""
+    name: Literal["SMTPPort"] = "SMTPPort"
+    value: int = Field(default=465)
+    type: Literal["number"] = "number"
+    field: Literal["numberInput"] = "numberInput"
+    placeHolder: int = Field(default=465)
+
+    class Config:
+        title = "SMTP Port"
+
+
+class CcReceiverEmail(Config):
+    """Optional CC recipients (comma-separated)."""
+    name: Literal["CcReceiverEmail"] = "CcReceiverEmail"
+    value: str = Field(default="")
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+    placeHolder: str = Field(default="cc1@example.com, cc2@example.com")
+
+    class Config:
+        title = "Cc Receiver Email"
+
+
+class BccReceiverEmail(Config):
+    """Optional BCC recipients (comma-separated)."""
+    name: Literal["BccReceiverEmail"] = "BccReceiverEmail"
+    value: str = Field(default="")
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+    placeHolder: str = Field(default="bcc1@example.com, bcc2@example.com")
+
+    class Config:
+        title = "Bcc Receiver Email"
+
+
+class AdditionalPropertiesValues(Configs):
+    """
+    Holds optional email settings shown under the collapsible 'Additional Properties'.
+    """
+    smtpPort: SMTPPort
+    ccReceiverEmail: Optional[CcReceiverEmail] = None
+    bccReceiverEmail: Optional[BccReceiverEmail] = None
+
+
+class AdditionalProperties(Config):
+    """
+    Collapsible group for optional fields.
+    Render hint via json_schema_extra: collapsed by default.
+    """
+    name: Literal["AdditionalProperties"] = "AdditionalProperties"
+    value: AdditionalPropertiesValues
+    type: Literal["object"] = "object"
+    # NOTE: 'field' rendering key depends on your UI; keep 'option' if that's what your form understands.
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Additional Properties"
+        json_schema_extra = {
+            "collapsed": True  # UI hint: start collapsed; safe to ignore if unsupported
+        }
+
+
+
+
+class EmailNotificationInputs(Inputs):
     inputImage: InputImage
 
 
-class PackageConfigs(Configs):
-    degree: Degree
-    drawBBox: KeepSideBBox
+class EmailNotificationConfigs(Configs):
+    subject:Subject
+    senderEmail:SenderEmail
+    receiverEmail:ReceiverEmail
+    message: Message
+    smtpServer:SMTPServer
+    senderMailPassword:SenderMailPassword
+    additionalProperties: Optional[AdditionalProperties] = None
 
 
-class PackageOutputs(Outputs):
-    outputImage: OutputImage
+
+class EmailNotificationOutputs(Outputs):
+    emailNotification: OutputEmailNotification
 
 
-class PackageRequest(Request):
-    inputs: Optional[PackageInputs]
-    configs: PackageConfigs
+class EmailNotificationRequest(Request):
+    inputs: Optional[EmailNotificationInputs]
+    configs: EmailNotificationConfigs
 
     class Config:
         json_schema_extra = {
@@ -108,18 +208,18 @@ class PackageRequest(Request):
         }
 
 
-class PackageResponse(Response):
-    outputs: PackageOutputs
+class EmailNotificationResponse(Response):
+    outputs: EmailNotificationOutputs
 
 
-class PackageExecutor(Config):
-    name: Literal["Package"] = "Package"
-    value: Union[PackageRequest, PackageResponse]
+class EmailNotification(Config):
+    name: Literal["EmailNotification"] = "EmailNotification"
+    value: Union[EmailNotificationRequest, EmailNotificationResponse]
     type: Literal["object"] = "object"
     field: Literal["option"] = "option"
 
     class Config:
-        title = "Package"
+        title = "EmailNotification"
         json_schema_extra = {
             "target": {
                 "value": 0
@@ -129,7 +229,7 @@ class PackageExecutor(Config):
 
 class ConfigExecutor(Config):
     name: Literal["ConfigExecutor"] = "ConfigExecutor"
-    value: Union[PackageExecutor]
+    value: Union[EmailNotification]
     type: Literal["executor"] = "executor"
     field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
@@ -147,4 +247,4 @@ class PackageConfigs(Configs):
 class PackageModel(Package):
     configs: PackageConfigs
     type: Literal["component"] = "component"
-    name: Literal["Package"] = "Package"
+    name: Literal["EmailNotification"] = "EmailNotification"
