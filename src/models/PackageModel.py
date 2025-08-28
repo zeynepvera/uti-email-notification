@@ -112,10 +112,9 @@ class SenderMailPassword(Config):
     class Config:
         title = "Sender Mail Password"
 
-
+"""
 
 class SMTPPort(Config):
-    """SMTP server port."""
     name: Literal["SMTPPort"] = "SMTPPort"
     value: int = Field(default=465)
     type: Literal["number"] = "number"
@@ -127,7 +126,6 @@ class SMTPPort(Config):
 
 
 class CcReceiverEmail(Config):
-    """Optional CC recipients (comma-separated)."""
     name: Literal["CcReceiverEmail"] = "CcReceiverEmail"
     value: str = Field(default="")
     type: Literal["string"] = "string"
@@ -139,7 +137,6 @@ class CcReceiverEmail(Config):
 
 
 class BccReceiverEmail(Config):
-    """Optional BCC recipients (comma-separated)."""
     name: Literal["BccReceiverEmail"] = "BccReceiverEmail"
     value: str = Field(default="")
     type: Literal["string"] = "string"
@@ -151,19 +148,14 @@ class BccReceiverEmail(Config):
 
 
 class AdditionalPropertiesValues(Configs):
-    """
-    Holds optional email settings shown under the collapsible 'Additional Properties'.
-    """
+   
     smtpPort: SMTPPort
     ccReceiverEmail: Optional[CcReceiverEmail] = None
     bccReceiverEmail: Optional[BccReceiverEmail] = None
 
 
 class AdditionalProperties(Config):
-    """
-    Collapsible group for optional fields.
-    Render hint via json_schema_extra: collapsed by default.
-    """
+    
     name: Literal["AdditionalProperties"] = "AdditionalProperties"
     value: AdditionalPropertiesValues
     type: Literal["object"] = "object"
@@ -177,7 +169,7 @@ class AdditionalProperties(Config):
         }
 
 
-
+"""
 
 class EmailNotificationInputs(Inputs):
     inputImage: InputImage
@@ -190,7 +182,7 @@ class EmailNotificationConfigs(Configs):
     message: Message
     smtpServer:SMTPServer
     senderMailPassword:SenderMailPassword
-    additionalProperties: Optional[AdditionalProperties] = None
+    #additionalProperties: Optional[AdditionalProperties] = None
 
 
 
