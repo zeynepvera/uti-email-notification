@@ -109,6 +109,16 @@ class SenderMailPassword(Config):
         title = "Sender Mail Password"
 
 
+class SMTPPort(Config):
+    """SMTP server port."""
+    name: Literal["SMTPPort"] = "SMTPPort"
+    value: int = Field(default=465)
+    type: Literal["number"] = "number"
+    field: Literal["numberInput"] = "numberInput"
+
+    class Config:
+        title = "SMTP Port"
+
 
 class CcReceiverEmail(Config):
     name: Literal["CcReceiverEmail"] = "CcReceiverEmail"
@@ -152,12 +162,6 @@ class AdditionalProperties(Config):
         json_schema_extra = {
             "collapsed": True  # UI hint: start collapsed; safe to ignore if unsupported
         }
-
-
-
-
-
-
 
 
 class EmailNotificationInputs(Inputs):
