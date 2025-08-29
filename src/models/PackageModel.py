@@ -35,10 +35,9 @@ class Subject(Config):
         Subject of the email to be sent.
     """
     name: Literal["Subject"] = "Subject"
-    value: str = Field(default="Notification from NovaVision")
+    value: str
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="Notification from NovaVision")
 
     class Config:
         title = "Subject"
@@ -49,10 +48,9 @@ class Message(Config):
     Content of the message to be send.
     """
     name: Literal["Message"] = "Message"
-    value: str = Field(default="This is an automated message from NovaVision.")
+    value: str
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="This is an automated message from NovaVision.")
 
     class Config:
         title = "Message"
@@ -93,7 +91,6 @@ class SMTPServer(Config):
     value: str = Field(default="smtp.gmail.com")
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="smtp.gmail.com")
 
     class Config:
         title = "SMTP Server"
@@ -112,9 +109,6 @@ class SenderMailPassword(Config):
         title = "Sender Mail Password"
 
 
-
-
-
 class EmailNotificationInputs(Inputs):
     inputImage: InputImage
 
@@ -127,7 +121,6 @@ class EmailNotificationConfigs(Configs):
     smtpServer: SMTPServer
     senderMailPassword: SenderMailPassword
 
-    # additionalProperties: Optional[AdditionalProperties] = None
 
 
 class EmailNotificationOutputs(Outputs):
