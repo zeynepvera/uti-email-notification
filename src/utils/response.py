@@ -5,10 +5,8 @@ from components.EmailNotification.src.models.PackageModel import EmailNotificati
 
 
 def build_response(context):
-    outputEmailNotification = getattr(context, "emailNotification", None)
-    if not outputEmailNotification:
-        outputEmailNotification = ""
-    outputEmailNotification = OutputEmailNotification(value=outputEmailNotification)
+
+    outputEmailNotification=OutputEmailNotification(value=context.message)
     emailNotificationOutputs = EmailNotificationOutputs(outputEmailNotification=outputEmailNotification)
     emailNotificationResponse = EmailNotificationResponse(outputs=emailNotificationOutputs)
     emailNotification = EmailNotification(value=emailNotificationResponse)
