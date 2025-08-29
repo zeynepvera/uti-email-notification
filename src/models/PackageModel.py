@@ -51,7 +51,7 @@ class Message(Config):
     name: Literal["Message"] = "Message"
     value: str = Field(default="This is an automated message from NovaVision.")
     type: Literal["string"] = "string"
-    field: Literal["textArea"] = "textArea"
+    field: Literal["textInput"] = "textInput"
     placeHolder: str = Field(default="This is an automated message from NovaVision.")
 
     class Config:
@@ -121,6 +121,11 @@ class EmailNotificationInputs(Inputs):
 
 class EmailNotificationConfigs(Configs):
     subject: Subject
+    senderEmail: SenderEmail
+    receiverEmail: ReceiverEmail
+    message: Message
+    smtpServer: SMTPServer
+    senderMailPassword: SenderMailPassword
 
     # additionalProperties: Optional[AdditionalProperties] = None
 
