@@ -76,7 +76,7 @@ class ReceiverEmail(Config):
     name: Literal["ReceiverEmail"] = "ReceiverEmail"
     value: str
     type: Literal["string"] = "string"
-    field: Literal["textInput"] = "textInput"
+    #field: Literal["textInput"] = "textInput"
 
     class Config:
         title = "Receiver Email"
