@@ -120,50 +120,6 @@ class SMTPPort(Config):
         title = "SMTP Port"
 
 
-class CcReceiverEmail(Config):
-    name: Literal["CcReceiverEmail"] = "CcReceiverEmail"
-    value: str = Field(default="")
-    type: Literal["string"] = "string"
-    field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="cc1@example.com, cc2@example.com")
-
-    class Config:
-        title = "Cc Receiver Email"
-
-
-class BccReceiverEmail(Config):
-    name: Literal["BccReceiverEmail"] = "BccReceiverEmail"
-    value: str = Field(default="")
-    type: Literal["string"] = "string"
-    field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="bcc1@example.com, bcc2@example.com")
-
-    class Config:
-        title = "Bcc Receiver Email"
-
-
-class AdditionalPropertiesValues(Configs):
-
-    smtpPort: SMTPPort
-    ccReceiverEmail: Optional[CcReceiverEmail] = None
-    bccReceiverEmail: Optional[BccReceiverEmail] = None
-
-
-class AdditionalProperties(Config):
-
-    name: Literal["AdditionalProperties"] = "AdditionalProperties"
-    value: AdditionalPropertiesValues
-    type: Literal["object"] = "object"
-    # NOTE: 'field' rendering key depends on your UI; keep 'option' if that's what your form understands.
-    field: Literal["option"] = "option"
-
-    class Config:
-        title = "Additional Properties"
-        json_schema_extra = {
-            "collapsed": True  # UI hint: start collapsed; safe to ignore if unsupported
-        }
-
-
 class EmailNotificationInputs(Inputs):
     inputImage: InputImage
 
@@ -174,8 +130,8 @@ class EmailNotificationConfigs(Configs):
     receiverEmail: ReceiverEmail
     message: Message
     smtpServer: SMTPServer
+    smtpPort: SMTPPort
     senderMailPassword: SenderMailPassword
-    additionalProperties: Optional[AdditionalProperties] = None
 
 
 class EmailNotificationOutputs(Outputs):
