@@ -121,11 +121,7 @@ class EmailNotificationInputs(Inputs):
 
 class EmailNotificationConfigs(Configs):
     subject: Subject
-    senderEmail: SenderEmail
-    receiverEmail: ReceiverEmail
-    message: Message
-    smtpServer: SMTPServer
-    senderMailPassword: SenderMailPassword
+
     # additionalProperties: Optional[AdditionalProperties] = None
 
 
