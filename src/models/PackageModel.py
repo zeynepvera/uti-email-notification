@@ -48,7 +48,7 @@ class Message(Config):
     Content of the message to be send.
     """
     name: Literal["Message"] = "Message"
-    value: str
+    value: str = Field(default="")
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
 
@@ -76,7 +76,7 @@ class ReceiverEmail(Config):
     name: Literal["ReceiverEmail"] = "ReceiverEmail"
     value: str
     type: Literal["string"] = "string"
-    #field: Literal["textInput"] = "textInput"
+    field: Literal["textInput"] = "textInput"
 
     class Config:
         title = "Receiver Email"
