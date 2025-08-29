@@ -114,7 +114,7 @@ class SMTPPort(Config):
     name: Literal["SMTPPort"] = "SMTPPort"
     value: int = Field(default=465)
     type: Literal["number"] = "number"
-    field: Literal["numberInput"] = "numberInput"
+    field: Literal["textInput"] = "textInput"
 
     class Config:
         title = "SMTP Port"
