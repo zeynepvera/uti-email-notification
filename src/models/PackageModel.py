@@ -63,10 +63,9 @@ class SenderEmail(Config):
         The email address of the sender.
     """
     name: Literal["SenderEmail"] = "SenderEmail"
-    value: str = Field(default="")
+    value: str
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="")
 
     class Config:
         title = "Sender Email"
@@ -77,10 +76,9 @@ class ReceiverEmail(Config):
         The email address of the receiver.
     """
     name: Literal["ReceiverEmail"] = "ReceiverEmail"
-    value: str = Field(default="")
+    value: str
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="")
 
     class Config:
         title = "Receiver Email"
@@ -106,10 +104,9 @@ class SenderMailPassword(Config):
         Sender e-mail password be used when authenticating to SMTP server.
     """
     name: Literal["SenderMailPassword"] = "SenderMailPassword"
-    value: str = Field(default="")
+    value: str
     type: Literal["string"] = "string"
     field: Literal["textInput"] = "textInput"
-    placeHolder: str = Field(default="")
 
     class Config:
         title = "Sender Mail Password"
