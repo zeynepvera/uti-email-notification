@@ -19,9 +19,9 @@ class Package(Component):
     def __init__(self, request, bootstrap):
         super().__init__(request, bootstrap)
         self.request.model = PackageModel(**(self.request.data))
-        self.rotation_degree = self.request.get_param("Degree")
-        self.keep_side = self.request.get_param("KeepSide")
-        self.image = self.request.get_param("inputImage")
+
+
+
 
     @staticmethod
     def bootstrap(config: dict) -> dict:
