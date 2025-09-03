@@ -1,6 +1,6 @@
 
 from sdks.novavision.src.helper.package import PackageHelper
-from components.EmailNotification.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutor,  OutputImage
+from components.EmailNotification.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutor
 from components.EmailNotification.src.models.PackageModel import EmailNotification,OutputEmailNotification, EmailNotificationResponse, EmailNotificationOutputs
 
 
