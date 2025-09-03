@@ -1,4 +1,3 @@
-
 from sdks.novavision.src.helper.package import PackageHelper
 from components.EmailNotification.src.models.PackageModel import PackageModel, PackageConfigs, ConfigExecutor
 from components.EmailNotification.src.models.PackageModel import EmailNotification,OutputEmailNotification, EmailNotificationResponse, EmailNotificationOutputs
@@ -15,4 +14,3 @@ def build_response(context):
     package = PackageHelper(packageModel=PackageModel, packageConfigs=packageConfigs)
     packageModel = package.build_model(context)
     return packageModel
-#
