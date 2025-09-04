@@ -1,5 +1,3 @@
-# 465: SSL, diğer portlar: STARTTLS
-
 import os
 import sys
 import ssl
@@ -25,29 +23,19 @@ def parse_recipients(value) -> list[str]:
     parts = re.split(r"[;, \s]+", str(value))
     return [p for p in parts if p]
 
+
 def validate_required(cfg: dict) -> list[str]:
     return [k for k, v in cfg.items() if v in (None, "", [])]
 
-def build_mime(from_addr: str,
-               to_list: list[str],
-               cc_list: list[str],
-               subject: str,
-               body_text: str,
-               body_html: str | None) -> str:
 
-    msg = MIMEMultipart("alternative")
+def build_mime(from_addr: str, recipients: list[str], subject: str, body: str) -> str:
+    msg = MIMEMultipart()
     msg["From"] = from_addr
-    msg["To"] = ", ".join(to_list)
-    if cc_list:
-        msg["Cc"] = ", ".join(cc_list)
+    msg["To"] = ", ".join(recipients)
     msg["Subject"] = str(subject)
-
-    msg.attach(MIMEText(body_text or "", "plain"))
-
-    if body_html:
-        msg.attach(MIMEText(body_html, "html"))
-
+    msg.attach(MIMEText(body or "", "plain"))
     return msg.as_string()
+
 
 def smtp_send(smtp_server: str, smtp_port: int, login_email: str, password: str,
               sender: str, to_addrs: list[str], raw_message: str) -> None:
@@ -81,14 +69,11 @@ class EmailNotification(Component):
 
         self.subject = self.request.get_param("Subject")
         self.message_body = self.request.get_param("Message")
-        self.message_html = self.request.get_param("MessageHtml")
         self.sender_email = self.request.get_param("SenderEmail")
         self.receiver_email = self.request.get_param("ReceiverEmail")
-        self.cc_receiver_email = self.request.get_param("CCReceiverEmail")
-        self.bcc_receiver_email = self.request.get_param("BCCReceiverEmail")
         self.smtp_server = self.request.get_param("SMTPServer")
         self.smtp_port = self.request.get_param("SMTPPort")
-        self.sender_password = self.request.get_param("SenderMailPassword")
+        self.sender_password =self.request.get_param("SenderMailPassword")
 
         self.message = None
 
@@ -108,23 +93,17 @@ class EmailNotification(Component):
         if missing:
             return f"Missing required parameter(s): {', '.join(missing)}"
 
-        to_list = parse_recipients(self.receiver_email)
-        cc_list = parse_recipients(self.cc_receiver_email)
-        bcc_list = parse_recipients(self.bcc_receiver_email)
-
-        if not to_list:
+        recipients = parse_recipients(self.receiver_email)
+        if not recipients:
             return "ReceiverEmail is empty or invalid."
 
         raw = build_mime(
             from_addr=self.sender_email,
-            to_list=to_list,
-            cc_list=cc_list,
+            recipients=recipients,
             subject=self.subject,
-            body_text=self.message_body,
-            body_html=self.message_html,
+            body=self.message_body,
         )
 
-        envelope_addrs = list(to_list) + cc_list + bcc_list
         try:
             smtp_send(
                 smtp_server=self.smtp_server,
@@ -132,10 +111,10 @@ class EmailNotification(Component):
                 login_email=self.sender_email,
                 password=self.sender_password,
                 sender=self.sender_email,
-                to_addrs=envelope_addrs,
+                to_addrs=recipients,
                 raw_message=raw,
             )
-            return f"Email sent to: {', '.join(envelope_addrs)}"
+            return f"Email sent to: {', '.join(recipients)}"
         except Exception as e:
             return f"Failed to send e-mail: {e}"
 

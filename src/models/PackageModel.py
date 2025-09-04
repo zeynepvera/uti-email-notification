@@ -55,15 +55,6 @@ class Message(Config):
     class Config:
         title = "Message"
 
-class MessageHtml(Config):
-    """Optional HTML body."""
-    name: Literal["MessageHtml"] = "MessageHtml"
-    value: Optional[str] = None
-    type: Literal["string"] = "string"
-    field: Literal["textInput"] = "textInput"
-
-    class Config:
-        title = "Message (HTML) - Optional"
 
 class SenderEmail(Config):
     """
@@ -89,29 +80,6 @@ class ReceiverEmail(Config):
 
     class Config:
         title = "Receiver Email"
-
-
-class CCReceiverEmail(Config):
-    """Optional CC addresses."""
-    name: Literal["CCReceiverEmail"] = "CCReceiverEmail"
-    value: Optional[str] = None
-    type: Literal["string"] = "string"
-    field: Literal["textInput"] = "textInput"
-
-    class Config:
-        title = "CC (optional)"
-
-
-class BCCReceiverEmail(Config):
-
-    """Optional BCC addresses."""
-    name: Literal["BCCReceiverEmail"] = "BCCReceiverEmail"
-    value: Optional[str] = None
-    type: Literal["string"] = "string"
-    field: Literal["textInput"] = "textInput"
-
-    class Config:
-        title = "BCC (optional)"
 
 
 class SMTPServer(Config):
@@ -160,10 +128,7 @@ class EmailNotificationConfigs(Configs):
     subject: Subject
     senderEmail: SenderEmail
     receiverEmail: ReceiverEmail
-    ccReceiverEmail: Optional[CCReceiverEmail] = None
-    bccReceiverEmail: Optional[BCCReceiverEmail] = None
     message: Message
-    messageHtml: Optional[MessageHtml] = None
     smtpServer: SMTPServer
     smtpPort: SMTPPort
     senderMailPassword: SenderMailPassword
