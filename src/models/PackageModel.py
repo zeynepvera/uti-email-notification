@@ -160,10 +160,10 @@ class EmailNotificationConfigs(Configs):
     subject: Subject
     senderEmail: SenderEmail
     receiverEmail: ReceiverEmail
-    ccReceiverEmail: CCReceiverEmail
-    bccReceiverEmail: BCCReceiverEmail
+    ccReceiverEmail: Optional[CCReceiverEmail] = None
+    bccReceiverEmail: Optional[BCCReceiverEmail] = None
     message: Message
-    messageHtml: MessageHtml
+    messageHtml: Optional[MessageHtml] = None
     smtpServer: SMTPServer
     smtpPort: SMTPPort
     senderMailPassword: SenderMailPassword
