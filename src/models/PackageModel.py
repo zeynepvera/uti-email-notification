@@ -152,7 +152,7 @@ class BccEnabled(Config):
     name: Literal["BccEnabled"] = "BccEnabled"
     value: Union[BccTrue, BccFalse]
     type: Literal["object"] = "object"
-    field: Literal["dropdownlist"] = "dropdownlist"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Bcc Receiver Email"
@@ -192,7 +192,7 @@ class CcEnabled(Config):
     name: Literal["CcEnabled"] = "CcEnabled"
     value: Union[CcTrue, CcFalse]
     type: Literal["object"] = "object"
-    field: Literal["dropdownlist"] = "dropdownlist"
+    field: Literal["dependentDropdownlist"] = "dependentDropdownlist"
 
     class Config:
         title = "Cc Receiver Email"
