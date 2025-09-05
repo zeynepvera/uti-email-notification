@@ -119,6 +119,62 @@ class SMTPPort(Config):
     class Config:
         title = "SMTP Port"
 
+class BccFalse(Config):
+    name: Literal["False"] = "False"
+    value: Literal[False] = False
+    type: Literal["bool"] = "bool"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Disable"
+
+class BccTrue(Config):
+    name: Literal["True"] = "True"
+    value: Literal[True] = True
+    type: Literal["bool"] = "bool"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Enable"
+
+
+class BccEnabled(Config):
+    name: Literal["BccEnabled"] = "BccEnabled"
+    value: Union[BccTrue, BccFalse]
+    type: Literal["object"] = "object"
+    field: Literal["dropdownlist"] = "dropdownlist"
+
+    class Config:
+        title = "Bcc Receiver Email"
+
+
+class CcFalse(Config):
+    name: Literal["False"] = "False"
+    value: Literal[False] = False
+    type: Literal["bool"] = "bool"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Disable"
+
+class CcTrue(Config):
+    name: Literal["True"] = "True"
+    value: Literal[True] = True
+    type: Literal["bool"] = "bool"
+    field: Literal["option"] = "option"
+
+    class Config:
+        title = "Enable"
+
+
+class CcEnabled(Config):
+    name: Literal["CcEnabled"] = "CcEnabled"
+    value: Union[CcTrue, CcFalse]
+    type: Literal["object"] = "object"
+    field: Literal["dropdownlist"] = "dropdownlist"
+
+    class Config:
+        title = "Cc Receiver Email"
 
 class EmailNotificationInputs(Inputs):
     inputImage: InputImage
@@ -128,6 +184,8 @@ class EmailNotificationConfigs(Configs):
     subject: Subject
     senderEmail: SenderEmail
     receiverEmail: ReceiverEmail
+    bccEnabled:BccEnabled
+    ccEnabled:CcEnabled
     message: Message
     smtpServer: SMTPServer
     smtpPort: SMTPPort
