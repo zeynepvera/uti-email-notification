@@ -13,56 +13,6 @@ from sdks.novavision.src.helper.executor import Executor
 from components.EmailNotification.src.utils.response import build_response
 from components.EmailNotification.src.models.PackageModel import PackageModel
 
-def _split_emails(value) -> list[str]:
-    """'a@x.com, b@y.com; c@z.com' -> [...]  (virgül/; / boşluk)"""
-    if not value:
-        return []
-    if isinstance(value, list):
-        return [v for v in value if v]
-    parts = re.split(r"[;, \s]+", str(value))
-    return [p for p in parts if p]
-
-
-def _validate_required(cfg: dict) -> list[str]:
-    return [k for k, v in cfg.items() if v in (None, "", [])]
-
-
-def _build_mime(from_addr: str, to_list: list[str], cc_list: list[str],
-                subject: str, body: str) -> str:
-    msg = MIMEMultipart()
-    msg["From"] = from_addr
-    msg["To"] = ", ".join(to_list)
-    if cc_list:
-        msg["Cc"] = ", ".join(cc_list)   # Bcc header YAZMIYORUZ
-    msg["Subject"] = str(subject)
-    msg.attach(MIMEText(body or "", "plain"))
-    return msg.as_string()
-
-
-def _smtp_send(smtp_server: str, smtp_port: int, login_email: str, password: str,
-               sender: str, to_addrs: list[str], raw_message: str) -> None:
-    try:
-        port = int(smtp_port) if smtp_port is not None else 465
-    except Exception:
-        port = 465
-
-    if port == 465:
-        context = ssl.create_default_context()
-        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
-            server.login(login_email, password)
-            server.sendmail(sender, to_addrs, raw_message)
-    else:
-        with smtplib.SMTP(smtp_server, port) as server:
-            server.ehlo()
-            try:
-                context = ssl.create_default_context()
-                server.starttls(context=context)
-                server.ehlo()
-            except Exception:
-                pass
-            server.login(login_email, password)
-            server.sendmail(sender, to_addrs, raw_message)
-
 
 class EmailNotification(Component):
     def __init__(self, request, bootstrap):
@@ -87,6 +37,53 @@ class EmailNotification(Component):
     @staticmethod
     def bootstrap(config: dict) -> dict:
         return {}
+
+    def _split_emails(value) -> list[str]:
+        """'a@x.com, b@y.com; c@z.com' -> [...]  (virgül/; / boşluk)"""
+        if not value:
+            return []
+        if isinstance(value, list):
+            return [v for v in value if v]
+        parts = re.split(r"[;, \s]+", str(value))
+        return [p for p in parts if p]
+
+    def _validate_required(cfg: dict) -> list[str]:
+        return [k for k, v in cfg.items() if v in (None, "", [])]
+
+    def _build_mime(from_addr: str, to_list: list[str], cc_list: list[str],
+                    subject: str, body: str) -> str:
+        msg = MIMEMultipart()
+        msg["From"] = from_addr
+        msg["To"] = ", ".join(to_list)
+        if cc_list:
+            msg["Cc"] = ", ".join(cc_list)  # Bcc header YAZMIYORUZ
+        msg["Subject"] = str(subject)
+        msg.attach(MIMEText(body or "", "plain"))
+        return msg.as_string()
+
+    def _smtp_send(smtp_server: str, smtp_port: int, login_email: str, password: str,
+                   sender: str, to_addrs: list[str], raw_message: str) -> None:
+        try:
+            port = int(smtp_port) if smtp_port is not None else 465
+        except Exception:
+            port = 465
+
+        if port == 465:
+            context = ssl.create_default_context()
+            with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+                server.login(login_email, password)
+                server.sendmail(sender, to_addrs, raw_message)
+        else:
+            with smtplib.SMTP(smtp_server, port) as server:
+                server.ehlo()
+                try:
+                    context = ssl.create_default_context()
+                    server.starttls(context=context)
+                    server.ehlo()
+                except Exception:
+                    pass
+                server.login(login_email, password)
+                server.sendmail(sender, to_addrs, raw_message)
 
     def _execute(self) -> str:
         missing = _validate_required({
