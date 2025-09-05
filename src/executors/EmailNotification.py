@@ -26,7 +26,8 @@ class EmailNotification(Component):
         self.receiver_email = self.request.get_param("ReceiverEmail")
         self.smtp_server = self.request.get_param("SMTPServer")
         self.smtp_port = self.request.get_param("SMTPPort")
-        self.sender_password = self.request.get_param("SenderMailPassword")
+        raw_pwd = self.request.get_param("SenderMailPassword")
+        self.sender_password = self._sanitize_app_password(raw_pwd)
         self.cc_enabled_raw = self.request.get_param("CcEnabled")
         self.cc_to_raw = self.request.get_param("CcTo")
         self.bcc_enabled_raw = self.request.get_param("BccEnabled")
@@ -37,6 +38,13 @@ class EmailNotification(Component):
     @staticmethod
     def bootstrap(config: dict) -> dict:
         return {}
+
+
+    @staticmethod
+    def _sanitize_app_password(p: Any) -> Optional[str]:
+        if p is None:
+            return None
+        return re.sub(r"\s+", "", str(p)).strip()
 
     @staticmethod
     def _parse_recipients(value: Any) -> List[str]:
@@ -54,7 +62,6 @@ class EmailNotification(Component):
 
     @staticmethod
     def _coerce_bool(v: Any) -> bool:
-
         if isinstance(v, bool):
             return v
         if isinstance(v, str):
@@ -70,7 +77,6 @@ class EmailNotification(Component):
     @staticmethod
     def _build_mime(from_addr: str, to_list: List[str], cc_list: Optional[List[str]],
                     subject: str, body: str) -> str:
-
         msg = MIMEMultipart()
         msg["From"] = from_addr
         msg["To"] = ", ".join(to_list)
@@ -159,5 +165,5 @@ class EmailNotification(Component):
         return build_response(context=self)
 
 
-if "__main__" == __name__:
+if "__name__" == "__main__":
     Executor(sys.argv[1]).run()
