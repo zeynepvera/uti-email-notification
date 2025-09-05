@@ -1,8 +1,10 @@
+
 import os
 import sys
 import ssl
 import re
 import smtplib
+from typing import List
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -25,12 +27,7 @@ class EmailNotification(Component):
         self.receiver_email = self.request.get_param("ReceiverEmail")
         self.smtp_server = self.request.get_param("SMTPServer")
         self.smtp_port = self.request.get_param("SMTPPort")
-        self.sender_password = self.request.get_param("SenderMailPassword")
-
-        self.cc_enabled = self.request.get_param("CcEnabled")
-        self.cc_to = self.request.get_param("CcTo")
-        self.bcc_enabled = self.request.get_param("BccEnabled")
-        self.bcc_to = self.request.get_param("BccTo")
+        self.sender_password =self.request.get_param("SenderMailPassword")
 
         self.message = None
 
@@ -38,11 +35,10 @@ class EmailNotification(Component):
     def bootstrap(config: dict) -> dict:
         return {}
 
-
     @staticmethod
-    def _split_emails(value) -> list[str]:
-        """'a@x.com, b@y.com; c@z.com' -> ['a@x.com','b@y.com','c@z.com']"""
-        if not value:
+    def _parse_recipients(value) -> List[str]:
+        """'a@x.com, b@y.com; c@z.com' -> ['a@x.com', 'b@y.com', 'c@z.com']"""
+        if value is None:
             return []
         if isinstance(value, list):
             return [v for v in value if v]
@@ -50,24 +46,21 @@ class EmailNotification(Component):
         return [p for p in parts if p]
 
     @staticmethod
-    def _validate_required(cfg: dict) -> list[str]:
+    def _validate_required(cfg: dict) -> List[str]:
         return [k for k, v in cfg.items() if v in (None, "", [])]
 
     @staticmethod
-    def _build_mime(from_addr: str, to_list: list[str], cc_list: list[str],
-                    subject: str, body: str) -> str:
+    def _build_mime(from_addr: str, recipients: List[str], subject: str, body: str) -> str:
         msg = MIMEMultipart()
         msg["From"] = from_addr
-        msg["To"] = ", ".join(to_list)
-        if cc_list:
-            msg["Cc"] = ", ".join(cc_list)
+        msg["To"] = ", ".join(recipients)
         msg["Subject"] = str(subject)
         msg.attach(MIMEText(body or "", "plain"))
         return msg.as_string()
 
     @staticmethod
-    def _smtp_send(smtp_server: str, smtp_port: int, login_email: str, password: str,
-                   sender: str, to_addrs: list[str], raw_message: str) -> None:
+    def _smtp_send(smtp_server: str, smtp_port, login_email: str, password: str,
+                   sender: str, to_addrs: List[str], raw_message: str) -> None:
         try:
             port = int(smtp_port) if smtp_port is not None else 465
         except Exception:
@@ -90,9 +83,7 @@ class EmailNotification(Component):
                 server.login(login_email, password)
                 server.sendmail(sender, to_addrs, raw_message)
 
-
-
-    def _execute(self) -> str:
+    def execute(self) -> str:
         missing = self._validate_required({
             "Subject": self.subject,
             "Message": self.message_body,
@@ -104,25 +95,17 @@ class EmailNotification(Component):
         if missing:
             return f"Missing required parameter(s): {', '.join(missing)}"
 
-        to_list = self._split_emails(self.receiver_email)
-
-        cc_active = bool(self.cc_enabled) and bool(self.cc_to)
-        bcc_active = bool(self.bcc_enabled) and bool(self.bcc_to)
-
-        cc_list = self._split_emails(self.cc_to) if cc_active else []
-        bcc_list = self._split_emails(self.bcc_to) if bcc_active else []
-
-        if not to_list:
+        recipients = self._parse_recipients(self.receiver_email)
+        if not recipients:
             return "ReceiverEmail is empty or invalid."
 
         raw = self._build_mime(
             from_addr=self.sender_email,
-            to_list=to_list,
-            cc_list=cc_list,
+            recipients=recipients,
             subject=self.subject,
             body=self.message_body,
         )
-        envelope_addrs = to_list + cc_list + bcc_list
+
         try:
             self._smtp_send(
                 smtp_server=self.smtp_server,
@@ -130,17 +113,17 @@ class EmailNotification(Component):
                 login_email=self.sender_email,
                 password=self.sender_password,
                 sender=self.sender_email,
-                to_addrs=envelope_addrs,
+                to_addrs=recipients,
                 raw_message=raw,
             )
-            return "Email sent to: " + ", ".join(envelope_addrs)
+            return f"Email sent to: {', '.join(recipients)}"
         except Exception as e:
             return f"Failed to send e-mail: {e}"
 
     def run(self):
-        self.message = self._execute()
+        self.message = self.execute()
         return build_response(context=self)
 
 
-if "__name__" == "__main__":
+if "__main__" == __name__:
     Executor(sys.argv[1]).run()
