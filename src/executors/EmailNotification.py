@@ -1,10 +1,9 @@
-
 import os
 import sys
 import ssl
 import re
 import smtplib
-from typing import List
+from typing import List, Any, Optional
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -27,7 +26,11 @@ class EmailNotification(Component):
         self.receiver_email = self.request.get_param("ReceiverEmail")
         self.smtp_server = self.request.get_param("SMTPServer")
         self.smtp_port = self.request.get_param("SMTPPort")
-        self.sender_password =self.request.get_param("SenderMailPassword")
+        self.sender_password = self.request.get_param("SenderMailPassword")
+        self.cc_enabled_raw = self.request.get_param("CcEnabled")
+        self.cc_to_raw = self.request.get_param("CcTo")
+        self.bcc_enabled_raw = self.request.get_param("BccEnabled")
+        self.bcc_to_raw = self.request.get_param("BccTo")
 
         self.message = None
 
@@ -36,8 +39,8 @@ class EmailNotification(Component):
         return {}
 
     @staticmethod
-    def _parse_recipients(value) -> List[str]:
-        """'a@x.com, b@y.com; c@z.com' -> ['a@x.com', 'b@y.com', 'c@z.com']"""
+    def _parse_recipients(value: Any) -> List[str]:
+        """'a@x.com, b@y.com; c@z.com' -> ['a@x.com','b@y.com','c@z.com']"""
         if value is None:
             return []
         if isinstance(value, list):
@@ -50,10 +53,29 @@ class EmailNotification(Component):
         return [k for k, v in cfg.items() if v in (None, "", [])]
 
     @staticmethod
-    def _build_mime(from_addr: str, recipients: List[str], subject: str, body: str) -> str:
+    def _coerce_bool(v: Any) -> bool:
+
+        if isinstance(v, bool):
+            return v
+        if isinstance(v, str):
+            return v.strip().lower() == "true"
+        if isinstance(v, dict):
+            inner = v.get("value")
+            if isinstance(inner, bool):
+                return inner
+            if isinstance(inner, str):
+                return inner.strip().lower() == "true"
+        return False
+
+    @staticmethod
+    def _build_mime(from_addr: str, to_list: List[str], cc_list: Optional[List[str]],
+                    subject: str, body: str) -> str:
+
         msg = MIMEMultipart()
         msg["From"] = from_addr
-        msg["To"] = ", ".join(recipients)
+        msg["To"] = ", ".join(to_list)
+        if cc_list:
+            msg["Cc"] = ", ".join(cc_list)
         msg["Subject"] = str(subject)
         msg.attach(MIMEText(body or "", "plain"))
         return msg.as_string()
@@ -95,16 +117,24 @@ class EmailNotification(Component):
         if missing:
             return f"Missing required parameter(s): {', '.join(missing)}"
 
-        recipients = self._parse_recipients(self.receiver_email)
-        if not recipients:
-            return "ReceiverEmail is empty or invalid."
+        to_list = self._parse_recipients(self.receiver_email)
+        cc_enabled = self._coerce_bool(self.cc_enabled_raw)
+        cc_list = self._parse_recipients(self.cc_to_raw) if cc_enabled else []
+        bcc_enabled = self._coerce_bool(self.bcc_enabled_raw)
+        bcc_list = self._parse_recipients(self.bcc_to_raw) if bcc_enabled else []
+
+        if not to_list and not cc_list and not bcc_list:
+            return "No valid recipients (To/Cc/Bcc)."
 
         raw = self._build_mime(
             from_addr=self.sender_email,
-            recipients=recipients,
+            to_list=to_list,
+            cc_list=cc_list,
             subject=self.subject,
             body=self.message_body,
         )
+
+        envelope_addrs = to_list + cc_list + bcc_list
 
         try:
             self._smtp_send(
@@ -113,10 +143,14 @@ class EmailNotification(Component):
                 login_email=self.sender_email,
                 password=self.sender_password,
                 sender=self.sender_email,
-                to_addrs=recipients,
+                to_addrs=envelope_addrs,
                 raw_message=raw,
             )
-            return f"Email sent to: {', '.join(recipients)}"
+            sent_info = []
+            if to_list: sent_info.append(f"To({len(to_list)})")
+            if cc_list: sent_info.append(f"Cc({len(cc_list)})")
+            if bcc_list: sent_info.append(f"Bcc({len(bcc_list)})")
+            return "Email sent: " + ", ".join(sent_info)
         except Exception as e:
             return f"Failed to send e-mail: {e}"
 
