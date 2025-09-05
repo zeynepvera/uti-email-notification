@@ -38,8 +38,10 @@ class EmailNotification(Component):
     def bootstrap(config: dict) -> dict:
         return {}
 
+
+    @staticmethod
     def _split_emails(value) -> list[str]:
-        """'a@x.com, b@y.com; c@z.com' -> [...]  (virgül/; / boşluk)"""
+        """'a@x.com, b@y.com; c@z.com' -> ['a@x.com','b@y.com','c@z.com']"""
         if not value:
             return []
         if isinstance(value, list):
@@ -47,20 +49,23 @@ class EmailNotification(Component):
         parts = re.split(r"[;, \s]+", str(value))
         return [p for p in parts if p]
 
+    @staticmethod
     def _validate_required(cfg: dict) -> list[str]:
         return [k for k, v in cfg.items() if v in (None, "", [])]
 
+    @staticmethod
     def _build_mime(from_addr: str, to_list: list[str], cc_list: list[str],
                     subject: str, body: str) -> str:
         msg = MIMEMultipart()
         msg["From"] = from_addr
         msg["To"] = ", ".join(to_list)
         if cc_list:
-            msg["Cc"] = ", ".join(cc_list)  # Bcc header YAZMIYORUZ
+            msg["Cc"] = ", ".join(cc_list)
         msg["Subject"] = str(subject)
         msg.attach(MIMEText(body or "", "plain"))
         return msg.as_string()
 
+    @staticmethod
     def _smtp_send(smtp_server: str, smtp_port: int, login_email: str, password: str,
                    sender: str, to_addrs: list[str], raw_message: str) -> None:
         try:
@@ -85,8 +90,10 @@ class EmailNotification(Component):
                 server.login(login_email, password)
                 server.sendmail(sender, to_addrs, raw_message)
 
+
+
     def _execute(self) -> str:
-        missing = _validate_required({
+        missing = self._validate_required({
             "Subject": self.subject,
             "Message": self.message_body,
             "SenderEmail": self.sender_email,
@@ -97,18 +104,18 @@ class EmailNotification(Component):
         if missing:
             return f"Missing required parameter(s): {', '.join(missing)}"
 
-        to_list = _split_emails(self.receiver_email)
+        to_list = self._split_emails(self.receiver_email)
 
         cc_active = bool(self.cc_enabled) and bool(self.cc_to)
         bcc_active = bool(self.bcc_enabled) and bool(self.bcc_to)
 
-        cc_list = _split_emails(self.cc_to) if cc_active else []
-        bcc_list = _split_emails(self.bcc_to) if bcc_active else []
+        cc_list = self._split_emails(self.cc_to) if cc_active else []
+        bcc_list = self._split_emails(self.bcc_to) if bcc_active else []
 
         if not to_list:
             return "ReceiverEmail is empty or invalid."
 
-        raw = _build_mime(
+        raw = self._build_mime(
             from_addr=self.sender_email,
             to_list=to_list,
             cc_list=cc_list,
@@ -116,9 +123,8 @@ class EmailNotification(Component):
             body=self.message_body,
         )
         envelope_addrs = to_list + cc_list + bcc_list
-
         try:
-            _smtp_send(
+            self._smtp_send(
                 smtp_server=self.smtp_server,
                 smtp_port=self.smtp_port,
                 login_email=self.sender_email,
@@ -136,5 +142,5 @@ class EmailNotification(Component):
         return build_response(context=self)
 
 
-if "__main__" == __name__:
+if "__name__" == "__main__":
     Executor(sys.argv[1]).run()
