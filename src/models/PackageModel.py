@@ -119,6 +119,15 @@ class SMTPPort(Config):
     class Config:
         title = "SMTP Port"
 
+class BccTo(Config):
+
+    name: Literal["BccTo"] = "BccTo"
+    value: str
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Bcc To"
 class BccFalse(Config):
     name: Literal["False"] = "False"
     value: Literal[False] = False
@@ -129,6 +138,7 @@ class BccFalse(Config):
         title = "Disable"
 
 class BccTrue(Config):
+    bccTo:BccTo
     name: Literal["True"] = "True"
     value: Literal[True] = True
     type: Literal["bool"] = "bool"
@@ -147,7 +157,15 @@ class BccEnabled(Config):
     class Config:
         title = "Bcc Receiver Email"
 
+class CcTo(Config):
 
+    name: Literal["CcTo"] = "CcTo"
+    value: str
+    type: Literal["string"] = "string"
+    field: Literal["textInput"] = "textInput"
+
+    class Config:
+        title = "Cc To"
 class CcFalse(Config):
     name: Literal["False"] = "False"
     value: Literal[False] = False
@@ -157,7 +175,9 @@ class CcFalse(Config):
     class Config:
         title = "Disable"
 
+
 class CcTrue(Config):
+    ccTo:CcTo
     name: Literal["True"] = "True"
     value: Literal[True] = True
     type: Literal["bool"] = "bool"
@@ -168,6 +188,7 @@ class CcTrue(Config):
 
 
 class CcEnabled(Config):
+
     name: Literal["CcEnabled"] = "CcEnabled"
     value: Union[CcTrue, CcFalse]
     type: Literal["object"] = "object"
